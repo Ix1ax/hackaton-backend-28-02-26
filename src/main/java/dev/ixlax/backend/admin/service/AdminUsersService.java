@@ -6,6 +6,7 @@ import dev.ixlax.backend.common.exception.ConflictException;
 import dev.ixlax.backend.common.exception.NotFoundException;
 import dev.ixlax.backend.entities.UserEntity;
 import dev.ixlax.backend.entities.UserRepository;
+import dev.ixlax.backend.entities.UserRoleEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,9 @@ public class AdminUsersService {
     public UserEntity blockUser(long id) {
         log.info("Админ: заблокировать пользователя: userId={}", id);
         UserEntity user = getUser(id);
+        if(user.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new BadRequestException("ROLE_ADMIN", "У Вас нет прав заблокировать другого администратора");
+        }
         user.setBlocked(true);
         log.info("Админ: пользователь заблокирован: userId={}", user.getId());
         return userRepository.save(user);
