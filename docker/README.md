@@ -5,7 +5,7 @@
 1) Создай `.env` рядом с `compose.yaml`:
 
 ```bash
-cp .env.example .env
+cp env.example .env
 ```
 
 2) Подними Postgres и прогони миграции:
