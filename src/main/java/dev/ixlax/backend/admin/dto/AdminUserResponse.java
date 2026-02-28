@@ -1,28 +1,32 @@
-package dev.ixlax.backend.auth.response;
+package dev.ixlax.backend.admin.dto;
 
 import dev.ixlax.backend.entities.UserEntity;
 import dev.ixlax.backend.entities.UserRoleEnum;
-import dev.ixlax.backend.security.UserPrincipal;
 
-public record MeResponse(
+public record AdminUserResponse(
         Long id,
         String email,
         String name,
         String surname,
         String patronymic,
         Integer age,
-        UserRoleEnum role
+        String parentFullName,
+        String parentPhone,
+        UserRoleEnum role,
+        boolean blocked
 ) {
-    public static MeResponse from(UserPrincipal principal) {
-        UserEntity user = principal.getUser();
-        return new MeResponse(
+    public static AdminUserResponse from(UserEntity user) {
+        return new AdminUserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
                 user.getSurname(),
                 user.getPatronymic(),
                 user.getAge(),
-                user.getRole()
+                user.getParentFullName(),
+                user.getParentPhone(),
+                user.getRole(),
+                user.isBlocked()
         );
     }
 }

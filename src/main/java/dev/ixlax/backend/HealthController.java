@@ -1,6 +1,6 @@
 package dev.ixlax.backend;
 
-import dev.ixlax.backend.utils.MessageException;
+import dev.ixlax.backend.common.dto.MessageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +13,7 @@ public class HealthController {
     @GetMapping("/health")
     public ResponseEntity<?> checkHealth() {
 
-        MessageException messageException = new MessageException("200", "OK");
+        MessageResponse messageException = new MessageResponse("200", "OK");
 
         return ResponseEntity.ok(messageException);
     }

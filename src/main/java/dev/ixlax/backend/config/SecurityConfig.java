@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/health", "/error").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(String.valueOf(UserRoleEnum.ADMIN))
                         .requestMatchers("/api/manager/**").hasRole(String.valueOf(UserRoleEnum.MANAGER))
                         .requestMatchers("/api/user/**").hasRole(String.valueOf(UserRoleEnum.USER))

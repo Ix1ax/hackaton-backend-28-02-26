@@ -23,6 +23,14 @@ public class UserEntity {
     private String surname;
     private String patronymic;
 
+    private Integer age;
+
+    @Column(name = "parent_full_name")
+    private String parentFullName;
+
+    @Column(name = "parent_phone")
+    private String parentPhone;
+
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -31,5 +39,8 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
+
+    @Column(nullable = false)
+    private boolean blocked;
 
 }

@@ -1,6 +1,7 @@
 package dev.ixlax.backend.auth.response;
 
 import dev.ixlax.backend.entities.UserEntity;
+import dev.ixlax.backend.entities.UserRoleEnum;
 
 public record AuthResponse(
         String accessToken,
@@ -8,7 +9,9 @@ public record AuthResponse(
         String email,
         String name,
         String surname,
-        String patronymic
+        String patronymic,
+        Integer age,
+        UserRoleEnum role
 ) {
     public static AuthResponse from(UserEntity user, String accessToken) {
         return new AuthResponse(
@@ -17,8 +20,9 @@ public record AuthResponse(
                 user.getEmail(),
                 user.getName(),
                 user.getSurname(),
-                user.getPatronymic()
+                user.getPatronymic(),
+                user.getAge(),
+                user.getRole()
         );
     }
 }
-
