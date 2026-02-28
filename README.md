@@ -29,9 +29,10 @@ Swagger / OpenAPI (тестирование + документация API):
 - `http://localhost:8080/swagger-ui/index.html`
 - `http://localhost:8080/v3/api-docs`
 
+`Для Админ-запросов необходимо вручную в БД для пользователя навесить роль ADMIN`
+
 Остановить:
 
 ```bash
 docker compose down
 ```
-

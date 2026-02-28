@@ -38,7 +38,7 @@ public class AuthService {
         if (age == null) {
             throw new BadRequestException("AGE_REQUIRED", "Возраст обязателен");
         }
-        log.info("Register attempt: email={}, age={}", email, age);
+        log.info("Попытка регистрации: email={}, age={}", email, age);
 
         String parentFullName = trimToNull(request.parentFullName());
         String parentPhone = normalizePhone(request.parentPhone());
@@ -52,7 +52,7 @@ public class AuthService {
         }
 
         if (userRepository.existsByEmail(email)) {
-            log.warn("Register rejected: email already taken (email={})", email);
+            log.warn("Регистрация отклонена: email уже занят (email={})", email);
             throw new AuthException("Почта уже использует");
         }
 
@@ -68,28 +68,28 @@ public class AuthService {
         user.setRole(UserRoleEnum.USER);
 
         UserEntity saved = userRepository.save(user);
-        log.info("Register success: userId={}, email={}", saved.getId(), saved.getEmail());
+        log.info("Регистрация успешна: userId={}, email={}", saved.getId(), saved.getEmail());
         String token = jwtService.generateToken(saved.getEmail(), Map.of("uid", saved.getId()));
         return AuthResponse.from(saved, token);
     }
 
     public AuthResponse login(LoginRequest request) {
         String email = formatEmail(request.email());
-        log.info("Login attempt: email={}", email);
+        log.info("Попытка входа: email={}", email);
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("Неправильная почта или пароль"));
 
         if (user.isBlocked()) {
-            log.warn("Login rejected: user blocked (userId={}, email={})", user.getId(), user.getEmail());
+            log.warn("Вход отклонён: пользователь заблокирован (userId={}, email={})", user.getId(), user.getEmail());
             throw new AuthException("Пользователь заблокирован");
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            log.warn("Login rejected: invalid credentials (email={})", email);
+            log.warn("Вход отклонён: неверные учётные данные (email={})", email);
             throw new AuthException("Неправильная почта или пароль");
         }
 
-        log.info("Login success: userId={}, email={}", user.getId(), user.getEmail());
+        log.info("Вход успешен: userId={}, email={}", user.getId(), user.getEmail());
         String token = jwtService.generateToken(user.getEmail(), Map.of("uid", user.getId()));
         return AuthResponse.from(user, token);
     }
@@ -97,7 +97,7 @@ public class AuthService {
     public MeResponse updateMe(UserPrincipal principal, UpdateMeRequest request) {
         UserEntity user = userRepository.findById(principal.getUser().getId())
                 .orElseThrow(() -> new AuthException("Пользователь не найден"));
-        log.info("UpdateMe attempt: userId={}", user.getId());
+        log.info("Попытка обновить профиль: userId={}", user.getId());
 
         String name = request.name();
         if (name != null) {
@@ -142,7 +142,7 @@ public class AuthService {
         user.setParentPhone(nextParentPhone);
 
         UserEntity saved = userRepository.save(user);
-        log.info("UpdateMe success: userId={}", saved.getId());
+        log.info("Профиль обновлён: userId={}", saved.getId());
         return MeResponse.from(saved);
     }
 

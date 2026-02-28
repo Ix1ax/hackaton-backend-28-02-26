@@ -23,17 +23,17 @@ public class AdminUsersService {
     }
 
     public List<UserEntity> listUsers() {
-        log.debug("Admin list users");
+        log.debug("Админ: список пользователей");
         return userRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public UserEntity getUser(long id) {
-        log.debug("Admin get user: userId={}", id);
+        log.debug("Админ: получить пользователя: userId={}", id);
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("USER_NOT_FOUND", "Пользователь не найден"));
     }
 
     public UserEntity updateUser(long id, AdminUpdateUserRequest request) {
-        log.info("Admin update user: userId={}", id);
+        log.info("Админ: обновить пользователя: userId={}", id);
         UserEntity user = getUser(id);
 
         if (request.email() != null) {
@@ -73,31 +73,31 @@ public class AdminUsersService {
 
         validateParentData(user);
 
-        log.info("Admin update user success: userId={}", user.getId());
+        log.info("Админ: пользователь обновлён: userId={}", user.getId());
         return userRepository.save(user);
     }
 
     public UserEntity blockUser(long id) {
-        log.info("Admin block user: userId={}", id);
+        log.info("Админ: заблокировать пользователя: userId={}", id);
         UserEntity user = getUser(id);
         user.setBlocked(true);
-        log.info("Admin block user success: userId={}", user.getId());
+        log.info("Админ: пользователь заблокирован: userId={}", user.getId());
         return userRepository.save(user);
     }
 
     public UserEntity unblockUser(long id) {
-        log.info("Admin unblock user: userId={}", id);
+        log.info("Админ: разблокировать пользователя: userId={}", id);
         UserEntity user = getUser(id);
         user.setBlocked(false);
-        log.info("Admin unblock user success: userId={}", user.getId());
+        log.info("Админ: пользователь разблокирован: userId={}", user.getId());
         return userRepository.save(user);
     }
 
     public void deleteUser(long id) {
-        log.info("Admin delete user: userId={}", id);
+        log.info("Админ: удалить пользователя: userId={}", id);
         UserEntity user = getUser(id);
         userRepository.delete(user);
-        log.info("Admin delete user success: userId={}", user.getId());
+        log.info("Админ: пользователь удалён: userId={}", user.getId());
     }
 
     private static void validateParentData(UserEntity user) {

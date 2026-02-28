@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractSubject(token);
         } catch (Exception e) {
-            log.debug("JWT parse failed: path={}, message={}", request.getRequestURI(), e.getMessage());
+            log.debug("JWT: ошибка разбора токена: path={}, message={}", request.getRequestURI(), e.getMessage());
             filterChain.doFilter(request, response);
             return;
         }
@@ -55,12 +55,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 userDetails = userDetailsService.loadUserByUsername(username);
             } catch (Exception e) {
-                log.debug("JWT user load failed: subject={}, path={}, message={}", username, request.getRequestURI(), e.getMessage());
+                log.debug("JWT: не удалось загрузить пользователя: subject={}, path={}, message={}", username, request.getRequestURI(), e.getMessage());
                 filterChain.doFilter(request, response);
                 return;
             }
             if (!userDetails.isEnabled() || !userDetails.isAccountNonLocked() || !userDetails.isAccountNonExpired()) {
-                log.debug("JWT user rejected (disabled/locked/expired): subject={}, path={}", username, request.getRequestURI());
+                log.debug("JWT: пользователь отклонён (отключён/заблокирован/истёк): subject={}, path={}", username, request.getRequestURI());
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -73,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } else {
-                log.debug("JWT invalid: subject={}, path={}", username, request.getRequestURI());
+                log.debug("JWT: токен недействителен: subject={}, path={}", username, request.getRequestURI());
             }
         }
 
