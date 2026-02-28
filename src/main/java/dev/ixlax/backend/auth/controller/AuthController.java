@@ -8,6 +8,7 @@ import dev.ixlax.backend.auth.response.MeResponse;
 import dev.ixlax.backend.auth.service.AuthService;
 import dev.ixlax.backend.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -26,19 +27,20 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(summary = "Регистрация")
+    @Operation(summary = "Регистрация", security = {})
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Логин")
+    @Operation(summary = "Логин", security = {})
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
     @GetMapping("/me")
     @Operation(summary = "Текущий пользователь")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<MeResponse> me(@AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(MeResponse.from(principal));
     }
@@ -48,6 +50,7 @@ public class AuthController {
             summary = "Обновить профиль",
             description = "Можно менять имя/фамилию/отчество и данные родителя. Нельзя менять email и дату рождения/возраст."
     )
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<MeResponse> updateMe(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody UpdateMeRequest request

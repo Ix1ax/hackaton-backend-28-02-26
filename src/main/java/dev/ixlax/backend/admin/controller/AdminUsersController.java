@@ -6,6 +6,7 @@ import dev.ixlax.backend.admin.service.AdminUsersService;
 import dev.ixlax.backend.common.dto.MessageResponse;
 import dev.ixlax.backend.entities.UserEntity;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/users")
 @Tag(name = "Admin Users")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminUsersController {
 
     private final AdminUsersService adminUsersService;
@@ -66,4 +68,3 @@ public class AdminUsersController {
         return ResponseEntity.ok(new MessageResponse("200", "OK"));
     }
 }
-
