@@ -2,6 +2,7 @@ package dev.ixlax.backend.auth.controller;
 
 import dev.ixlax.backend.auth.request.LoginRequest;
 import dev.ixlax.backend.auth.request.RegisterRequest;
+import dev.ixlax.backend.auth.request.UpdateMeRequest;
 import dev.ixlax.backend.auth.response.AuthResponse;
 import dev.ixlax.backend.auth.response.MeResponse;
 import dev.ixlax.backend.auth.service.AuthService;
@@ -40,5 +41,17 @@ public class AuthController {
     @Operation(summary = "Текущий пользователь")
     public ResponseEntity<MeResponse> me(@AuthenticationPrincipal UserPrincipal principal) {
         return ResponseEntity.ok(MeResponse.from(principal));
+    }
+
+    @PatchMapping("/me")
+    @Operation(
+            summary = "Обновить профиль",
+            description = "Можно менять имя/фамилию/отчество и данные родителя. Нельзя менять email и дату рождения/возраст."
+    )
+    public ResponseEntity<MeResponse> updateMe(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody UpdateMeRequest request
+    ) {
+        return ResponseEntity.ok(authService.updateMe(principal, request));
     }
 }

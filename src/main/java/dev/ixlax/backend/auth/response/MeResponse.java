@@ -11,10 +11,15 @@ public record MeResponse(
         String surname,
         String patronymic,
         Integer age,
+        String parentFullName,
+        String parentPhone,
         UserRoleEnum role
 ) {
     public static MeResponse from(UserPrincipal principal) {
-        UserEntity user = principal.getUser();
+        return from(principal.getUser());
+    }
+
+    public static MeResponse from(UserEntity user) {
         return new MeResponse(
                 user.getId(),
                 user.getEmail(),
@@ -22,6 +27,8 @@ public record MeResponse(
                 user.getSurname(),
                 user.getPatronymic(),
                 user.getAge(),
+                user.getParentFullName(),
+                user.getParentPhone(),
                 user.getRole()
         );
     }

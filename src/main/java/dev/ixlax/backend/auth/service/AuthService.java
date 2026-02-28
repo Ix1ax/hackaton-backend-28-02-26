@@ -3,12 +3,15 @@ package dev.ixlax.backend.auth.service;
 import dev.ixlax.backend.auth.exception.AuthException;
 import dev.ixlax.backend.auth.request.LoginRequest;
 import dev.ixlax.backend.auth.request.RegisterRequest;
+import dev.ixlax.backend.auth.request.UpdateMeRequest;
 import dev.ixlax.backend.auth.response.AuthResponse;
+import dev.ixlax.backend.auth.response.MeResponse;
 import dev.ixlax.backend.entities.UserEntity;
 import dev.ixlax.backend.entities.UserRepository;
 import dev.ixlax.backend.entities.UserRoleEnum;
 import dev.ixlax.backend.security.JwtService;
 import dev.ixlax.backend.common.exception.BadRequestException;
+import dev.ixlax.backend.security.UserPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -80,6 +83,56 @@ public class AuthService {
 
         String token = jwtService.generateToken(user.getEmail(), Map.of("uid", user.getId()));
         return AuthResponse.from(user, token);
+    }
+
+    public MeResponse updateMe(UserPrincipal principal, UpdateMeRequest request) {
+        UserEntity user = userRepository.findById(principal.getUser().getId())
+                .orElseThrow(() -> new AuthException("Пользователь не найден"));
+
+        String name = request.name();
+        if (name != null) {
+            name = name.trim();
+            if (name.isEmpty()) {
+                throw new BadRequestException("NAME_INVALID", "Имя не может быть пустым");
+            }
+            user.setName(name);
+        }
+
+        String surname = request.surname();
+        if (surname != null) {
+            surname = surname.trim();
+            if (surname.isEmpty()) {
+                throw new BadRequestException("SURNAME_INVALID", "Фамилия не может быть пустой");
+            }
+            user.setSurname(surname);
+        }
+
+        if (request.patronymic() != null) {
+            user.setPatronymic(trimToNull(request.patronymic()));
+        }
+
+        String nextParentFullName = request.parentFullName() == null
+                ? user.getParentFullName()
+                : trimToNull(request.parentFullName());
+        String nextParentPhone = request.parentPhone() == null
+                ? user.getParentPhone()
+                : normalizePhone(request.parentPhone());
+
+        Integer age = user.getAge();
+        if (age != null && age < 14) {
+            if (nextParentFullName == null || nextParentPhone == null) {
+                throw new BadRequestException(
+                        "PARENT_REQUIRED",
+                        "Если пользователю меньше 14 лет, нужно указать ФИО родителя и его номер телефона"
+                );
+            }
+        }
+
+        user.setParentFullName(nextParentFullName);
+        user.setParentPhone(nextParentPhone);
+
+        UserEntity saved = userRepository.save(user);
+        return MeResponse.from(saved);
     }
 
     private static String formatEmail(String email) {
