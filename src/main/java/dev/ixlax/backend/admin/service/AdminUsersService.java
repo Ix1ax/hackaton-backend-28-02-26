@@ -6,12 +6,14 @@ import dev.ixlax.backend.common.exception.ConflictException;
 import dev.ixlax.backend.common.exception.NotFoundException;
 import dev.ixlax.backend.entities.UserEntity;
 import dev.ixlax.backend.entities.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
 public class AdminUsersService {
 
     private final UserRepository userRepository;
@@ -21,14 +23,17 @@ public class AdminUsersService {
     }
 
     public List<UserEntity> listUsers() {
+        log.debug("Admin list users");
         return userRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
     }
 
     public UserEntity getUser(long id) {
+        log.debug("Admin get user: userId={}", id);
         return userRepository.findById(id).orElseThrow(() -> new NotFoundException("USER_NOT_FOUND", "Пользователь не найден"));
     }
 
     public UserEntity updateUser(long id, AdminUpdateUserRequest request) {
+        log.info("Admin update user: userId={}", id);
         UserEntity user = getUser(id);
 
         if (request.email() != null) {
@@ -68,24 +73,31 @@ public class AdminUsersService {
 
         validateParentData(user);
 
+        log.info("Admin update user success: userId={}", user.getId());
         return userRepository.save(user);
     }
 
     public UserEntity blockUser(long id) {
+        log.info("Admin block user: userId={}", id);
         UserEntity user = getUser(id);
         user.setBlocked(true);
+        log.info("Admin block user success: userId={}", user.getId());
         return userRepository.save(user);
     }
 
     public UserEntity unblockUser(long id) {
+        log.info("Admin unblock user: userId={}", id);
         UserEntity user = getUser(id);
         user.setBlocked(false);
+        log.info("Admin unblock user success: userId={}", user.getId());
         return userRepository.save(user);
     }
 
     public void deleteUser(long id) {
+        log.info("Admin delete user: userId={}", id);
         UserEntity user = getUser(id);
         userRepository.delete(user);
+        log.info("Admin delete user success: userId={}", user.getId());
     }
 
     private static void validateParentData(UserEntity user) {
@@ -124,4 +136,3 @@ public class AdminUsersService {
         return normalized;
     }
 }
-

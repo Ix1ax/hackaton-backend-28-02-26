@@ -12,12 +12,14 @@ import dev.ixlax.backend.entities.UserRoleEnum;
 import dev.ixlax.backend.security.JwtService;
 import dev.ixlax.backend.common.exception.BadRequestException;
 import dev.ixlax.backend.security.UserPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -36,6 +38,7 @@ public class AuthService {
         if (age == null) {
             throw new BadRequestException("AGE_REQUIRED", "Возраст обязателен");
         }
+        log.info("Register attempt: email={}, age={}", email, age);
 
         String parentFullName = trimToNull(request.parentFullName());
         String parentPhone = normalizePhone(request.parentPhone());
@@ -49,6 +52,7 @@ public class AuthService {
         }
 
         if (userRepository.existsByEmail(email)) {
+            log.warn("Register rejected: email already taken (email={})", email);
             throw new AuthException("Почта уже использует");
         }
 
@@ -64,23 +68,28 @@ public class AuthService {
         user.setRole(UserRoleEnum.USER);
 
         UserEntity saved = userRepository.save(user);
+        log.info("Register success: userId={}, email={}", saved.getId(), saved.getEmail());
         String token = jwtService.generateToken(saved.getEmail(), Map.of("uid", saved.getId()));
         return AuthResponse.from(saved, token);
     }
 
     public AuthResponse login(LoginRequest request) {
         String email = formatEmail(request.email());
+        log.info("Login attempt: email={}", email);
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("Неправильная почта или пароль"));
 
         if (user.isBlocked()) {
+            log.warn("Login rejected: user blocked (userId={}, email={})", user.getId(), user.getEmail());
             throw new AuthException("Пользователь заблокирован");
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            log.warn("Login rejected: invalid credentials (email={})", email);
             throw new AuthException("Неправильная почта или пароль");
         }
 
+        log.info("Login success: userId={}, email={}", user.getId(), user.getEmail());
         String token = jwtService.generateToken(user.getEmail(), Map.of("uid", user.getId()));
         return AuthResponse.from(user, token);
     }
@@ -88,6 +97,7 @@ public class AuthService {
     public MeResponse updateMe(UserPrincipal principal, UpdateMeRequest request) {
         UserEntity user = userRepository.findById(principal.getUser().getId())
                 .orElseThrow(() -> new AuthException("Пользователь не найден"));
+        log.info("UpdateMe attempt: userId={}", user.getId());
 
         String name = request.name();
         if (name != null) {
@@ -132,6 +142,7 @@ public class AuthService {
         user.setParentPhone(nextParentPhone);
 
         UserEntity saved = userRepository.save(user);
+        log.info("UpdateMe success: userId={}", saved.getId());
         return MeResponse.from(saved);
     }
 
